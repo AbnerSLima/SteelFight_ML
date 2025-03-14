@@ -6,7 +6,6 @@ from sklearn.cluster import KMeans
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.linear_model import LinearRegression
 
-
 # Base de dados (Nome, Ataque, Velocidade, Defesa, Nível de Poder)
 robos = np.array([
     ["TitanX", 85, 70, 90, 82.5], ["ShadowCore", 75, 90, 60, 76.5], ["MechaRex", 90, 50, 85, 78.5],  
@@ -25,10 +24,17 @@ robos = np.array([
 st.set_page_config(page_title="🤖 SteelFight", layout="centered")
 
 # Descrição do projeto
-st.title("🤖 Bem-vindo a Arena SteelFight!")
+st.title("🤖 Bem-vindo à Arena SteelFight!")
 st.write(
     """  
-    🤖 Bem-vindo a Arena SteelFight!
+    ⚡ Prepare-se para o combate supremo na **Arena SteelFight**! ⚙️💥  
+    Aqui, robôs colidem em batalhas épicas para provar quem é o verdadeiro **campeão mecânico**.  
+
+    🏗️ **Construa** seu próprio robô com peças personalizadas.  
+    🏆 **Treine** com inteligência artificial para aprimorar sua força.  
+    🎯 **Descubra** sua **Liga de Batalha** e desafie os melhores!  
+
+    🚀 Monte sua estratégia, escolha suas peças e **entre para a lenda** do SteelFight!  
     """
 )
 
@@ -45,7 +51,7 @@ a1, a2, a3 = modelo.coef_
 b = modelo.intercept_
 
 # Criando as abas
-aba1, aba2, aba3 = st.tabs(["Regras", "⚙️ Oficina", "📊 **Lista de robôs**"])
+aba1, aba2, aba3 = st.tabs(["📜 Manual de Construção", "🏗️ **Montagem de Robôs**", "🤖 **Hall da Fama**"])
 
 # Aba Base de dados ultilizada
 with aba3:
@@ -354,12 +360,11 @@ with aba2:
         ax.scatter(novo_robo[:, 0], novo_robo[:, 1], novo_robo[:, 2], color='red', s=200, label="Novo Robô", marker="X")
 
         # Configuração do gráfico
-        ax.set_xlabel("Ataque 💪")
-        ax.set_ylabel("Velocidade ⚡")
-        ax.set_zlabel("Defesa 🛡️")
+        ax.set_xlabel("Ataque")
+        ax.set_ylabel("Velocidade")
+        ax.set_zlabel("Defesa")
         ax.set_title("Classificação do Novo Robô")
         ax.legend()
 
         # Exibir gráfico
         st.pyplot(fig)
-
