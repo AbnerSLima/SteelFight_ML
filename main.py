@@ -45,7 +45,7 @@ a1, a2, a3 = modelo.coef_
 b = modelo.intercept_
 
 # Criando as abas
-aba1, aba2, aba3 = st.tabs(["Regras", "Oficina", "🔍 **Lista de robôs**"])
+aba1, aba2, aba3 = st.tabs(["Regras", "⚙️ Oficina", "📊 **Lista de robôs**"])
 
 # Aba Base de dados ultilizada
 with aba3:
@@ -152,9 +152,9 @@ with aba1:
         2️⃣ **Escolhendo o Número de Grupos (Clusters)**      
         Definimos que queremos 3 grupos de robôs:
 
-            ⚪ Iniciantes → Robôs mais fracos
-            🟡 Intermediários → Robôs balanceados
-            🔴 Avançados → Os mais poderosos
+            ⚫ Liga Sucata → Robôs mais fracos
+            🔵 Liga Titânio → Robôs balanceados
+            🟠 Liga Overdrive → Os mais poderosos
 
         Então, configuramos o K-Means com k = 3 clusters.
 
@@ -212,9 +212,9 @@ with aba1:
     st.write(
         """
         Após algumas iterações, o modelo agrupa os robôs em três categorias com base no nível de poder:     
-            🔹 ⚪ Iniciantes → Robôs mais fracos       
-            🔹 🟡 Intermediários → Robôs balanceados       
-            🔹 🔴 Avançados → Os mais poderosos        
+            🔹 ⚫ Liga Sucata → Robôs mais fracos       
+            🔹 🔵 Liga Titânio → Robôs balanceados       
+            🔹 🟠 Liga Overdrive → Os mais poderosos        
         Agora, sempre que adicionarmos um **novo robô**, o K-Means determinará automaticamente **qual categoria ele pertence**!
         """
     )
@@ -234,10 +234,10 @@ with aba1:
     # Ordenando clusters corretamente (do mais fraco ao mais forte)
     clusters_ordenados = sorted(range(num_clusters), key=lambda i: kmeans.cluster_centers_[i, 0])
     categorias = {
-        clusters_ordenados[0]: "⚪ Iniciante",
-        clusters_ordenados[1]: "🟡 Intermediário",
-        clusters_ordenados[2]: "🔴 Avançado"
-    }
+    clusters_ordenados[0]: "⚫ Liga Sucata",
+    clusters_ordenados[1]: "🔵 Liga Titânio",
+    clusters_ordenados[2]: "🟠 Liga Overdrive"
+}
 
     # Aplicando a classificação correta
     df_clusters["Categoria"] = df_clusters["Categoria"].map(categorias)
@@ -317,4 +317,49 @@ with aba1:
 
 # Aba Oficina
 with aba2:
-    st.title("🔍 Modelo Supervisionado - Regressão Linear Múltipla")
+    st.title("⚙️ Oficina - Criação de Robôs")
+    st.write("🚀 **Monte seu próprio robô e veja em qual liga ele se encaixa!**")
+
+
+    # Inputs do usuário
+    ataque_usuario = st.slider("💪 Ataque", min_value=10, max_value=100, value=75, step=1)
+    velocidade_usuario = st.slider("⚡ Velocidade", min_value=10, max_value=100, value=75, step=1)
+    defesa_usuario = st.slider("🛡️ Defesa", min_value=10, max_value=100, value=75, step=1)
+
+    if st.button("🔍 Avaliar Robô"):
+        
+        # Criando o novo robô
+        novo_robo = np.array([[ataque_usuario, velocidade_usuario, defesa_usuario]])
+
+        # Previsão do nível de poder
+        nivel_predito = modelo.predict(novo_robo)[0]
+
+        # Classificação no K-Means
+        cluster_predito = kmeans.predict(novo_robo)[0]
+        liga_predita = categorias[cluster_predito]
+
+        # Exibindo os resultados
+        st.write("✅ **Resultado da Análise**")
+        st.write(f"🤖 Seu robô terá um **nível de poder estimado** de **{nivel_predito:.2f}**.")
+        st.write(f"🏆 Ele pertence à **{liga_predita}**!")
+
+        # Criando gráfico para visualizar o novo robô
+        fig = plt.figure(figsize=(8, 5))
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Plotando os robôs originais
+        scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=clusters, cmap="viridis", s=100, alpha=0.6)
+        
+        # Adicionando o novo robô no gráfico
+        ax.scatter(novo_robo[:, 0], novo_robo[:, 1], novo_robo[:, 2], color='red', s=200, label="Novo Robô", marker="X")
+
+        # Configuração do gráfico
+        ax.set_xlabel("Ataque 💪")
+        ax.set_ylabel("Velocidade ⚡")
+        ax.set_zlabel("Defesa 🛡️")
+        ax.set_title("Classificação do Novo Robô")
+        ax.legend()
+
+        # Exibir gráfico
+        st.pyplot(fig)
+
