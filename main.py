@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 from mpl_toolkits.mplot3d import Axes3D
+from sklearn.linear_model import LinearRegression
 
 
 # Base de dados (Nome, Ataque, Velocidade, Defesa, Nível de Poder)
@@ -14,21 +14,11 @@ robos = np.array([
     ["SteelPhantom", 50, 80, 40, 58.0], ["Rusty", 40, 45, 35, 40.0], ["BlazeUnit", 95, 85, 80, 89.5],  
     ["OmegaKnight", 92, 70, 92, 85.8], ["CyberCrusher", 89, 65, 86, 81.0], ["TurboBot", 55, 99, 45, 64.5],  
     ["TitanZero", 78, 82, 74, 76.8], ["MechaFury", 85, 72, 79, 81.2], ["ElectroSting", 60, 85, 50, 66.0],  
-    ["WarDroid", 95, 60, 90, 86.2],  
-    ["ShadowGhost", 58, 87, 43, 63.5],  
-    ["BladeCore", 80, 70, 85, 78.6],  
-    ["VenomBot", 72, 68, 65, 69.5],  
-    ["InfernoMech", 88, 90, 85, 86.0],  
-    ["StealthUnit", 65, 92, 48, 69.8],  
-    ["PlasmaKnight", 84, 73, 79, 78.9],  
-    ["TitanBuster", 91, 65, 87, 82.0],  
-    ["CyberSentinel", 76, 80, 72, 74.8],  
-    ["RoboSpectre", 67, 77, 60, 69.2],  
-    ["StormBreaker", 89, 81, 83, 83.5],  
-    ["TeraCrusher", 90, 62, 91, 81.9],  
-    ["SteelVortex", 50, 78, 40, 57.5],  
-    ["NanoBot", 45, 40, 38, 39.0],  
-    ["GigaTitan", 97, 88, 95, 92.0]  
+    ["WarDroid", 95, 60, 90, 86.2], ["ShadowGhost", 58, 87, 43, 63.5], ["BladeCore", 80, 70, 85, 78.6],  
+    ["VenomBot", 72, 68, 65, 69.5], ["InfernoMech", 88, 90, 85, 86.0], ["StealthUnit", 65, 92, 48, 69.8],  
+    ["PlasmaKnight", 84, 73, 79, 78.9], ["TitanBuster", 91, 65, 87, 82.0], ["CyberSentinel", 76, 80, 72, 74.8],  
+    ["RoboSpectre", 67, 77, 60, 69.2], ["StormBreaker", 89, 81, 83, 83.5], ["TeraCrusher", 90, 62, 91, 81.9],  
+    ["SteelVortex", 50, 78, 40, 57.5], ["NanoBot", 45, 40, 38, 39.0], ["GigaTitan", 97, 88, 95, 92.0]  
 ])
 
 # Título da página
@@ -62,8 +52,7 @@ with aba3:
     df = pd.DataFrame(robos, columns=["Nome", "Ataque", "Velocidade", "Defesa", "Nível de Poder"])
     st.dataframe(df)
 
-
-# Aba Modelo Supervisionado
+# Aba Treino
 with aba1:
     # Modelo Supervisionado
     st.title("🔍 Modelo Supervisionado - Regressão Linear Múltipla")
@@ -118,7 +107,7 @@ with aba1:
     st.latex(rf"y = {a1:.4f} \cdot x_1 + {a2:.4f} \cdot x_2 + {a3:.4f} \cdot x_3 + {b:.4f}")
 
 
-    ##### Criando um novo robô para prever nível de poder
+    # Criando um novo robô para prever nível de poder
     novo_robo = np.array([[80, 85, 75]])
     nivel_predito = modelo.predict(novo_robo)
 
@@ -151,21 +140,82 @@ with aba1:
         """       
         O **K-Means** é um algoritmo de aprendizado não supervisionado que agrupa robôs automaticamente com base em suas características (Ataque, Velocidade e Defesa).     
         
-        Ele cria **3 categorias** sem que precisemos definir os grupos manualmente:  
-        
-        - **⚪ Iniciante** → Robôs mais fracos  
-        - **🟡 Intermediário** → Robôs balanceados  
-        - **🔴 Avançado** → Robôs mais poderosos  
-        
-        📌 **Como o K-Means funciona?**  
-        
-        1️⃣ Escolhemos um número de **k grupos (clusters)**, no nosso caso, **k = 3**.  
-        2️⃣ O modelo **seleciona pontos aleatórios** como centro de cada grupo (centroides).  
-        3️⃣ Calculamos a **distância de cada robô até os centroides**.  
-        4️⃣ Cada robô é atribuído ao **grupo mais próximo**.  
-        5️⃣ O modelo **recalcula os centroides** com base nos robôs dentro do grupo.  
-        6️⃣ O processo se **repete até que os grupos fiquem bem definidos**.  
+        1️⃣ **Definição das Variáveis**       
+        No nosso caso, temos três variáveis para classificar os robôs:
 
+            x₁ = Ataque 💪      
+            x₂ = Velocidade ⚡      
+            x₃ = Defesa 🛡️      
+
+        Cada robô é representado como um ponto no espaço (x₁, x₂, x₃).  
+
+        2️⃣ **Escolhendo o Número de Grupos (Clusters)**      
+        Definimos que queremos 3 grupos de robôs:
+
+            ⚪ Iniciantes → Robôs mais fracos
+            🟡 Intermediários → Robôs balanceados
+            🔴 Avançados → Os mais poderosos
+
+        Então, configuramos o K-Means com k = 3 clusters.
+
+        3️⃣ **Inicialização Aleatória dos Centroides**        
+        O K-Means começa escolhendo aleatoriamente 3 pontos iniciais (centroides) para representar os grupos.
+
+        Digamos que os centroides iniciais escolhidos sejam:
+        """
+    )
+    st.latex(r"C_1 = (50, 70, 45), \quad C_2 = (80, 85, 75), \quad C_3 = (95, 90, 85)")
+    st.write(
+        """ 
+        Os centroides são pontos fictícios que representam o centro de cada grupo.
+
+  
+        4️⃣ **Cada robô é atribuído ao grupo mais próximo**.      
+        Agora, para cada robô, calculamos a distância euclidiana até cada centroide.        
+
+        A distância euclidiana entre um robô (x₁, x₂, x₃) e um centroide (C₁, C₂, C₃) é dada por:
+        """
+    )
+    st.latex(r"d = \sqrt{(x_1 - C_1)^2 + (x_2 - C_2)^2 + (x_3 - C_3)^2}")
+    st.write("Exemplo para o robô 'TitanX' (85, 70, 90):")
+    st.write("🔹 Distância até C₁ = (50, 70, 45):")
+    st.latex(r"d_1 = \sqrt{(85 - 50)^2 + (70 - 70)^2 + (90 - 45)^2}")
+    st.latex(r"d_1 = \sqrt{(35)^2 + 0 + (45)^2} = \sqrt{1225 + 2025} = \sqrt3250 \approx 57.0")
+    st.write("🔹 Distância até C₂ = (80, 85, 75):")
+    st.latex(r"d_2 = \sqrt{(85 - 80)^2 + (70 - 85)^2 + (90 - 75)^2}")
+    st.latex(r"d_2 = \sqrt{(5)^2 + (-15)^2 + (15)^2} = \sqrt{25 + 225 + 225} = \sqrt{475} \approx 21.8")
+    st.write("🔹 Distância até C₃ = (95, 90, 85):")
+    st.latex(r"d_3 = \sqrt{(85 - 95)^2 + (70 - 90)^2 + (90 - 85)^2}")
+    st.latex(r"d_3 = \sqrt{(-10)^2 + (-20)^2 + (5)^2} = \sqrt{100 + 400 + 25} = \sqrt{525} \approx 22.9")
+    st.write(
+        """
+        Como **d₂** (21.8) é a menor distância, **TitanX** será atribuído ao cluster **C₂ (Intermediário)**.
+
+        Esse processo é repetido para **todos os robôs**.  
+        """
+    )
+    st.write(
+        """
+        5️⃣ **Recalculando os Centroides**       
+        Depois de classificar todos os robôs, o K-Means recalcula a **posição média** dos robôs dentro de cada grupo para encontrar um novo centroide.      
+        
+        Se um grupo contém robôs: 
+        """
+    )
+    st.latex(r"(80,85,75),(78,82,74),(84,73,79)")
+    st.write("O novo centroide será a média de cada atributo:")
+    st.latex(r"C_{\text{novo}} = \left( \frac{80 + 78 + 84}{3}, \frac{85 + 82 + 73}{3}, \frac{75 + 74 + 79}{3} \right)")
+    st.latex(r"C_{\text{novo}} = \left( \frac{242}{3}, \frac{240}{3}, \frac{228}{3} \right)")
+    st.latex(r"C_{\text{novo}} = (80.6, 80, 76)")
+    st.write("Esse processo é repetido **até que os centroides não mudem mais.**")
+    st.write("6️⃣ **Resultado Final**")
+    st.write(
+        """
+        Após algumas iterações, o modelo agrupa os robôs em três categorias com base no nível de poder:     
+            🔹 ⚪ Iniciantes → Robôs mais fracos       
+            🔹 🟡 Intermediários → Robôs balanceados       
+            🔹 🔴 Avançados → Os mais poderosos        
+        Agora, sempre que adicionarmos um **novo robô**, o K-Means determinará automaticamente **qual categoria ele pertence**!
         """
     )
 
@@ -195,7 +245,7 @@ with aba1:
     # 📌 Exibindo explicação dos cálculos
     st.write(
         """
-        ## 📊 **Cálculo do K-Means - Passo a Passo**  
+        📊 **Cálculo do K-Means - Passo a Passo**  
         
         O modelo inicia com **3 centroides aleatórios** e ajusta os grupos iterativamente até encontrar a melhor classificação.  
         """
@@ -265,6 +315,6 @@ with aba1:
     st.write("📜 **Tabela de Classificação dos Robôs**")
     st.dataframe(df_clusters)
 
-# Aba Modelo Não Supervisionado
+# Aba Oficina
 with aba2:
-    
+    st.title("🔍 Modelo Supervisionado - Regressão Linear Múltipla")
