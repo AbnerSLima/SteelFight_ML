@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -326,45 +327,75 @@ with aba2:
     st.title("⚙️ Oficina - Criação de Robôs")
     st.write("🚀 **Monte seu próprio robô e veja em qual liga ele se encaixa!**")
 
+    # 📌 Definição dos níveis de peça
+    pecas = {
+        "Nível 1 (Básico)": (10, 30),
+        "Nível 2 (Intermediário)": (31, 59),
+        "Nível 3 (Avançado)": (60, 89),
+        "Nível 4 (Elite)": (90, 100)
+    }
 
-    # Inputs do usuário
-    ataque_usuario = st.slider("💪 Ataque", min_value=10, max_value=100, value=75, step=1)
-    velocidade_usuario = st.slider("⚡ Velocidade", min_value=10, max_value=100, value=75, step=1)
-    defesa_usuario = st.slider("🛡️ Defesa", min_value=10, max_value=100, value=75, step=1)
+    # Seletor de peças
+    body_escolha = st.selectbox("🛡️ Escolha a peça para o BODY (Defesa):", list(pecas.keys()))
+    arms_escolha = st.selectbox("💪 Escolha a peça para os ARMS (Ataque):", list(pecas.keys()))
+    legs_escolha = st.selectbox("⚡ Escolha a peça para as LEGS (Velocidade):", list(pecas.keys()))
 
-    if st.button("🔍 Avaliar Robô"):
+    
+
+    if st.button("🔍 Montar Robô", key="montar_robo"):
         
+        # Gerando valores aleatórios dentro da faixa escolhida
+        st.session_state["defesa_usuario"] = random.randint(*pecas[body_escolha])
+        st.session_state["ataque_usuario"] = random.randint(*pecas[arms_escolha])
+        st.session_state["velocidade_usuario"] = random.randint(*pecas[legs_escolha])
+
         # Criando o novo robô
-        novo_robo = np.array([[ataque_usuario, velocidade_usuario, defesa_usuario]])
+        st.session_state["novo_robo"] = np.array([[ 
+            st.session_state["ataque_usuario"], 
+            st.session_state["velocidade_usuario"], 
+            st.session_state["defesa_usuario"]
+        ]])
 
         # Previsão do nível de poder
-        nivel_predito = modelo.predict(novo_robo)[0]
+        st.session_state["nivel_predito"] = modelo.predict(st.session_state["novo_robo"])[0]
 
         # Classificação no K-Means
-        cluster_predito = kmeans.predict(novo_robo)[0]
-        liga_predita = categorias[cluster_predito]
+        cluster_predito = kmeans.predict(st.session_state["novo_robo"])[0]
+        st.session_state["liga_predita"] = categorias[cluster_predito]
 
-        # Exibindo os resultados
-        st.write("✅ **Resultado da Análise**")
-        st.write(f"🤖 Seu robô terá um **nível de poder estimado** de **{nivel_predito:.2f}**.")
-        st.write(f"🏆 Ele pertence à **{liga_predita}**!")
+    if "novo_robo" in st.session_state:
+        # Exibir os valores do robô montado
+        st.write(f"🤖 Seu robô foi montado com:")
+        st.write(f"🛡️ **Defesa:** {st.session_state['defesa_usuario']} (Peça {body_escolha})")
+        st.write(f"💪 **Ataque:** {st.session_state['ataque_usuario']} (Peça {arms_escolha})")
+        st.write(f"⚡ **Velocidade:** {st.session_state['velocidade_usuario']} (Peça {legs_escolha})")
 
-        # Criando gráfico para visualizar o novo robô
-        fig = plt.figure(figsize=(8, 5))
-        ax = fig.add_subplot(111, projection='3d')
+        if st.button("🔍 Avaliar Robô", key="avaliar_robo"):
 
-        # Plotando os robôs originais
-        scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=clusters, cmap="viridis", s=100, alpha=0.6)
-        
-        # Adicionando o novo robô no gráfico
-        ax.scatter(novo_robo[:, 0], novo_robo[:, 1], novo_robo[:, 2], color='red', s=200, label="Novo Robô", marker="X")
+            # Exibindo os resultados
+            st.write("✅ **Resultado da Análise**")
+            st.write(f"🤖 Seu robô terá um **nível de poder estimado** de **{st.session_state['nivel_predito']:.2f}**.")
+            st.write(f"🏆 Ele pertence à **{st.session_state['liga_predita']}**!")
 
-        # Configuração do gráfico
-        ax.set_xlabel("Ataque")
-        ax.set_ylabel("Velocidade")
-        ax.set_zlabel("Defesa")
-        ax.set_title("Classificação do Novo Robô")
-        ax.legend()
+            # Criando gráfico para visualizar o novo robô
+            fig = plt.figure(figsize=(8, 5))
+            ax = fig.add_subplot(111, projection='3d')
 
-        # Exibir gráfico
-        st.pyplot(fig)
+            # Plotando os robôs originais
+            scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=clusters, cmap="viridis", s=100, alpha=0.6)
+            
+            # Adicionando o novo robô no gráfico
+            ax.scatter(st.session_state["novo_robo"][:, 0], 
+                    st.session_state["novo_robo"][:, 1], 
+                    st.session_state["novo_robo"][:, 2], 
+                    color='red', s=200, label="Novo Robô", marker="X")
+
+            # Configuração do gráfico
+            ax.set_xlabel("Ataque")
+            ax.set_ylabel("Velocidade")
+            ax.set_zlabel("Defesa")
+            ax.set_title("Classificação do Novo Robô")
+            ax.legend()
+
+            # Exibir gráfico
+            st.pyplot(fig)
